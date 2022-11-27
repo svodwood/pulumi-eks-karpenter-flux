@@ -1,0 +1,13 @@
+name: pulumi-eks-karpenter-flux
+description: A minimal AWS Python Pulumi program
+runtime:
+    name: python
+    options:
+        virtualenv: venv
+template:
+  config:
+    aws:region: 
+        description: Region to deploy the stack into
+        default: us-east-1
+    aws:profile:
+        description: AWS CLI profile name for the account
