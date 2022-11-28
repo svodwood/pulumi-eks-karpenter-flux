@@ -11,3 +11,10 @@ template:
         default: us-east-1
     aws:profile:
         description: AWS CLI profile name for the account
+    flux-github-repo-name:
+        description: public Github repository with flux definitions
+    flux-github-repo-owner:
+        description: public Github repository owner
+    flux-github-token:
+        description: Github access token
+        secret: true
