@@ -33,6 +33,11 @@ default_fargate_pod_execution_role_policy = [
     "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
 ]
 
+# VPC CNI service account policies:
+cni_service_account_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+]
+
 # Create a default demo EKS cluster nodegroup security group:
 demo_nodegroup_security_group = ec2.SecurityGroup(f"custom-node-attach-{cluster_descriptor}",
     description=f"{cluster_descriptor} custom node security group",
@@ -134,12 +139,22 @@ demo_eks_cluster = eks_provider.Cluster(f"eks-{cluster_descriptor}",
 demo_eks_cluster_oidc_arn = demo_eks_cluster.core.oidc_provider.arn
 demo_eks_cluster_oidc_url = demo_eks_cluster.core.oidc_provider.url
 
+# Create an IAM role for VPC CNI:
+iam_role_vpc_cni_service_account = create_oidc_role(f"{cluster_descriptor}-aws-node", "kube-system", demo_eks_cluster_oidc_arn, demo_eks_cluster_oidc_url, "aws-node", cni_service_account_policy_arns)
+
+# Create a Karpenter IAM role scoped to karpenter namespace
+iam_role_karpenter_controller_policy = create_policy(f"{cluster_descriptor}-karpenter-policy", "karpenter_oidc_role_policy.json")
+iam_role_karpenter_controller_service_account_role = create_oidc_role(f"{cluster_descriptor}-karpenter", "karpenter", demo_eks_cluster_oidc_arn, demo_eks_cluster_oidc_url, "karpenter", [iam_role_karpenter_controller_policy.arn])
+export("karpenter-oidc-role-arn", iam_role_karpenter_controller_service_account_role.arn)
+
+
 # Install VPC CNI addon when the cluster is initialized:
 vpc_cni_addon = eks.Addon("vpc-cni-addon",
     cluster_name=f"{cluster_descriptor}",
     addon_name="vpc-cni",
     addon_version="v1.11.4-eksbuild.1",
     resolve_conflicts="OVERWRITE",
+    service_account_role_arn=iam_role_vpc_cni_service_account.arn,
     opts=ResourceOptions(
         depends_on=[demo_eks_cluster]
     )
@@ -174,7 +189,6 @@ role_provider = k8s.Provider(f"{cluster_descriptor}-kubernetes-provider",
 )
 
 # Create a service account and cluster role binding for flux controller
-
 flux_service_account = k8s.core.v1.ServiceAccount("flux-controller-service-account",
     api_version="v1",
     kind="ServiceAccount",
