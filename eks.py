@@ -3,14 +3,13 @@ import pulumi_eks as eks_provider
 from pulumi import export, ResourceOptions
 import pulumi_kubernetes as k8s
 
-from settings import general_tags, flux_github_repo_owner, flux_github_repo_name, flux_github_token, flux_cli_version
+from settings import general_tags, cluster_descriptor, flux_github_repo_owner, flux_github_repo_name, flux_github_token, flux_cli_version
 from vpc import demo_vpc, demo_private_subnets, demo_eks_cp_subnets
 from helpers import create_iam_role, create_oidc_role, create_policy
 
 """
 Shared EKS resources
 """
-cluster_descriptor = "demo-k8s"
 
 # Create an EKS cluster role
 eks_iam_role_policy_arns = [
@@ -259,3 +258,12 @@ flux_bootstrap_job = k8s.batch.v1.Job("fluxBootstrapJob",
             ),
         ),
     ))
+
+# Create a karpenter namespace:
+karpenter_namespace = k8s.core.v1.Namespace("karpenter-namespace",
+    metadata={"name": "karpenter"},
+    opts=ResourceOptions(
+        provider=role_provider,
+        depends_on=[demo_eks_cluster]
+    )
+)

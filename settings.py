@@ -35,6 +35,7 @@ demo_eks_cp_subnet_cidrs = [
 
 deployment_region = config.region
 endpoint_services = ["ecr.api","ecr.dkr","ec2","sts","logs","s3","email-smtp","cloudformation"]
+cluster_descriptor = "demo-k8s"
 
 """
 Flux Bootstrap args

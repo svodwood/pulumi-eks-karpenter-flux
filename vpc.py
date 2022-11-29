@@ -1,6 +1,6 @@
 import pulumi
 from pulumi_aws import ec2, config, get_availability_zones
-from settings import general_tags, demo_vpc_cidr, demo_private_subnet_cidrs, demo_public_subnet_cidrs, demo_eks_cp_subnet_cidrs
+from settings import general_tags, cluster_descriptor, demo_vpc_cidr, demo_private_subnet_cidrs, demo_public_subnet_cidrs, demo_eks_cp_subnet_cidrs
 
 """
 Creates a minium of AWS networking objects required for the demo stack to work
@@ -97,7 +97,7 @@ for i in range(2):
         vpc_id=demo_vpc.id,
         cidr_block=demo_private_subnet_cidrs[i],
         availability_zone=demo_azs[i],
-        tags={**general_tags, "Name": f"demo-private-subnet-{prefix}"},
+        tags={**general_tags, "Name": f"demo-private-subnet-{prefix}", "karpenter.sh/discovery": f"{cluster_descriptor}"},
         opts=pulumi.ResourceOptions(parent=demo_vpc)
     )
     
