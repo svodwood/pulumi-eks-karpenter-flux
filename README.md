@@ -3,13 +3,13 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://svodwood.github.io/devops-pastebin/eks-part-one-karpenter-flux/>
+  <a href="https://github.com/github_username/repo_name">
     <img src="https://raw.githubusercontent.com/svodwood/assets/main/eks-demo-time.png" alt="Logo">
   </a>
 <h3 align="center">EKS Series Part 1. Operationalizing EKS with Karpenter and Flux</h3>
 
   <p align="center">
-    Flux Configuration Repository for Cilium EKS Demo
+    Pulumi Infrastructure as Code
     <br />
     <br />
     <a href="https://github.com/svodwood/pulumi-eks-karpenter-flux/issues">Report Bug</a>
